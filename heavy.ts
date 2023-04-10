@@ -8,11 +8,11 @@ const availabilityRange = {
   end: 365
 };
 
-const availabilityStock = 200;
+const availabilityStock = 2_000;
 
 // Usage testing amounts
 const reservationsToCreate = 10_000;
-const availabilityQueries = 10_000;
+const availabilityQueries = 50_000;
 
 const tree = new ReservationSegmentTree(availabilityRange.start, availabilityRange.end, availabilityStock, false);
 

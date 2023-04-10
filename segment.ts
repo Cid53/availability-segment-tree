@@ -23,8 +23,7 @@ export class SegmentNode {
     return this;
   }
 
-  public reduceAvailability(count: number): boolean {
-    if (this.available < count) return false;
+  public reduceAvailability(count: number) {
     this.available -= count;
 
     if (this.left && this.right) {
@@ -33,8 +32,6 @@ export class SegmentNode {
       this.left.reduceAvailability(count);
       this.right.reduceAvailability(count);
     }
-
-    return true;
   }
 
   public setAvailability(count: number) {
@@ -137,7 +134,13 @@ export default class ReservationSegmentTree {
       if (this.debug) console.log(`└ Segments =>`, this.reservationSegments.map(node => `[${node.start}:${node.end}]`).toString());
 
       // make sure each segment of the reservation has availability
-      const allSegmentsHaveAvailability = this.reservationSegments.every(node => node.reduceAvailability(count));
+      if (this.reservationSegments.some(node => node.available < count)) {
+        if (this.debug) console.log(`└ Failed: A segment lacks availability`);
+        return false;
+      }
+
+      // each node that contained or overlapped a reservation needs its availability reduced
+      this.reservationSegments.forEach(node => node.reduceAvailability(count));
 
       // each node that contained or overlapped a reservation needs its availability reduced
       this.visited.forEach(node => node.setAvailability(Math.max(node.available - count, 0)));
@@ -145,7 +148,7 @@ export default class ReservationSegmentTree {
       this.reservationSegments = [];
       this.visited = [];
 
-      return allSegmentsHaveAvailability;
+      return true;
     }
 
     return false;
