@@ -47,18 +47,30 @@ export class SegmentNode {
     const engulfed = this.start >= start && this.end <= end; // entire node is contained in range
     const contains = containsStart && containsEnd; // node contains entire rage
     const overlaps = containsStart !== containsEnd; // node is part of the range, but not entirely
+    const hasAvailability = this.available >= count;
+
+    const lacksAvailability = () => {
+      if (tree.debug) console.log(`└ Failed: Segment [${this.start}:${this.end}] lacks availability`);
+
+      return false;
+    };
 
     if (engulfed) {
+      if (!hasAvailability) return lacksAvailability();
+
       // node is inside range, it is part of the reservation
       tree.reservationSegments.push(this);
 
       // the node either contains (an exact match) or is the end of the reservation
+      // if the node is at the start or in the middle, we return false so that we can continue to find the remaining nodes
       return contains || abutsEnd;
     }
 
     if (contains) {
       // node contains entire range
       if (!this.left || !this.right) {
+        if (!hasAvailability) return lacksAvailability();
+
         // does not have children, split
         this.split(start, end);
       }
@@ -70,6 +82,8 @@ export class SegmentNode {
 
     if (overlaps) {
       if (!this.left || !this.right) {
+        if (!hasAvailability) return lacksAvailability();
+
         // node only has one piece of the query range and no children, we need to split it
         if (containsStart) this.split(start, this.end);
         if (containsEnd) this.split(this.start, end);
@@ -131,13 +145,7 @@ export default class ReservationSegmentTree {
     }
 
     if(this.root.reserve(start, end, count, this)) {
-      if (this.debug) console.log(`└ Segments =>`, this.reservationSegments.map(node => `[${node.start}:${node.end}]`).toString());
-
-      // make sure each segment of the reservation has availability
-      if (this.reservationSegments.some(node => node.available < count)) {
-        if (this.debug) console.log(`└ Failed: A segment lacks availability`);
-        return false;
-      }
+      if (this.debug) console.log(`└ Success: Segments =>`, this.reservationSegments.map(node => `[${node.start}:${node.end}]`).toString());
 
       // each node that contained or overlapped a reservation needs its availability reduced
       this.reservationSegments.forEach(node => node.reduceAvailability(count));

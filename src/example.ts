@@ -1,4 +1,4 @@
-import ReservationSegmentTree from "./segment";
+import ReservationSegmentTree from "./ReservationSegmentTree";
 
 const tree = new ReservationSegmentTree(1, 30, 10);
 

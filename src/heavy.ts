@@ -1,5 +1,5 @@
 // Heavy usage testing
-import ReservationSegmentTree from "./segment";
+import ReservationSegmentTree from "./ReservationSegmentTree";
 import random from "lodash.random";
 
 // Define root bounds for segment tree
