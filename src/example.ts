@@ -59,7 +59,6 @@ tree.reserve(2,7, 1);
  *    [2-2] [3-4]*        [8-10]*    [11-30]
  */
 tree.reserve(3,10, 1);
-tree.reserve(2,11, 20);
 
 tree.getAvailability(1, 6);
 tree.getAvailability(5, 15);
